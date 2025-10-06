@@ -1,0 +1,38 @@
+<!doctype html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <title>Abstract: Probing for Non-Linear Logical Operators in Emergent Neural Representations</title> 
+</head>
+
+
+<body>
+    <h1>Abstract: Probing for Non-Linear Logical Operators in Emergent Neural Representations</h1>
+    <p>Authors: Sike Ogieva, Haoze Wu</p>
+    <p>Affiliations: Amherst College</p>
+    <h2>Abstract</h2>
+    <p>Recent work has demonstrated that neural agents, when trained on referential communication games, can develop an emergent 
+        "language" that exhibits compositional structure analogous to human language (Andreas et al., 2017). 
+        A key finding of this research was the ability to identify a consistent linear transformation within 
+        the model's vector space that corresponds to logical negation, achieving high agreement with the ground-truth meaning of the operation</p>
+
+    <p> However, this linear model failed to adequately capture the structure of more complex logical operators like conjunction and disjunction, 
+        with reported agreement for disjunction dropping to as low as 19% on full meaning representations. 
+        This suggests that while negation may be represented linearly, other logical operations likely correspond to more complex, non-linear transformations. 
+        In this work, we propose to test this hypothesis by introducing a non-linear "operator probe." 
+
+    </p>
+
+    
+    <p>       Instead of solving for a single linear matrix, we train a small multi-layer perceptron (MLP) to learn the 
+        function that combines two vector representations into a third, corresponding to their logical conjunction or disjunction. 
+        By evaluating this non-linear operator probe using the same truth-conditional methodology as the original paper, 
+        we seek to determine if it can more accurately model the latent syntax of the emergent language. 
+        Success in this endeavor would provide strong evidence that neural networks develop non-linear 
+        geometric structures to represent complex logical concepts, deepening our understanding of the hidden computational mechanisms within deep representations.
+    </p>
+
+</body>
+
+</html>
