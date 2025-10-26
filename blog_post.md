@@ -1,57 +1,41 @@
 # "Neural Babel: What Do Neural Networks Talk About?"
-Sike Ogieva, Amherst College. 
 
-Imagine overhearing a conversation in a language you don’t speak. 
-The speakers understand each other perfectly, but you have no idea what they're saying. In this project, the speakers were neural networks, 
-and the language emerged spontaneously when they were trained to collaboratively solve a task. The goal was to build a translator for this “neuralese” and this is what I found when I tried.
+Imagine overhearing a conversation in a language you don’t speak. The speakers understand each other perfectly, but you have no idea what they're saying. In this project, the speakers were neural networks, and the language emerged spontaneously when they were trained to collaboratively solve a task. We tried to build a translator for this “neuralese” and this is what we found.
 
-### Teaching Machines to Point at Things
-Andreas et al (2017) (cite) developed a game on the GENX dataset (cite)
-Diagram explaining the game
-Other possible tasks…(driving, cite), same task but with images (cite)
-In this, I forewent the GENX dataset for a simplified one of I generated
-Diagram explaining how they were generated
-Mention Number of rules, samples, etc
+## Teaching Machines to Point at Things
+Take a world of objects W and a subset of this world X.
 
-### Conference
-We built the speaker-listenerr…. Blah blah blan introduction
-Architecture
-Object Encoder → Speaker → Neuralese → Listener
-Explain the architecture and the reasoning behind those choices.
-Cite object encoder research
-Clean diagram showing the flow and input, output sizes
+>> Insert drawing
+>> 
+Before scrolling, how would YOU describe this selection? 
+Open hidden section: rule:
+A neural network called the speaker is given W and X and outputs a neuralese vector V that ideally captures this rule. Another network called the listener takes in V and an element of the world W_i e W and predicts whether or not W_i belongs in X.
+The listener never sees X. It relies on the speaker’s neuralese output to describe X to it.
+Andreas and Klein (2017) [cite] shows us that this "language" could be negated via linear transformation to take on the opposite meaning. Now, this project attempts to figure out whether these vectors can be outrightly translated.
+For training data, Andreas and Klein use labels from the GENX dataset [cite]. We forewent this dataset and generated our own. Each object had a color, shape and outline thickness encoded row by row.
+>>> Insert drawing that shows how a matrix is an object
+Our dataset had 80_730 unique worlds of 5 objects each. Subsets were created using 72 unique rules which could be a single feature rule (‘red’), single feature negation (‘not red’), two features of different types joined by and/or (‘red and circle’, ‘triangle or thick-outline’). Skipping over world-rule combinations that resulted in empty subsets, we gathered a dataset of 1_705_833 entries.
+>>> Insert drawing from explore_dataset
+Training separate networks to evolve languages in order to play a communication game has also been done in Gupta et al (2021), Lazaridou et al (2018) and Andreas et al (2018).
 
-Training
-The shuffling innovation to prevent learning masks
-They are trained end-to-end… encoder to listener
-Final accuracy on test set
-Cross-Rule Validation, Original poor numbers (Within-rule:  0.908  ± 0.090, Between-rule: 0.865 ± 0.097)
-Large baseline discovered and subsequent Normalization Insight
+## 2. Conference
 
-### Translation
-Set-Up
-Explain what we are doing and why (interpretability, trust, debugging)
-The hypothesis: neuralese can be translated to natural language
-Building the translator network (n times bigger then the speaker-listener) and trained for n times longer.
-Present raw test accuracies for token and sequence accuracies
+### 2.1. Training the speaker-listener
 
-Probe and Adjusted Metrics
-1. Some predicted rules accurately describe X but are not the ground truth. Give an example.
-2. Some predicted rules accurately describe the objects in X, but do not comprehensively exclude the objects not in X. Give an example.
-Report these adjusted metrics.
-Then bring up the insight that only 60% of the predicted rules are valid. Give examples of rules that aren’t valid… So if we look at the adjusted metrics only for rules which are valid, what happens? Report those numbers.
+The speaker-listener system achieved 99.56% test accuracy on an unseen test set, with accuracy climbing from 60% to 95%+ by epoch 1 implying that the task was easily learned.
+>>> Insert diagram going over the architecture of the speaker-listener system.
+To prevent the speaker from encoding positional shortcuts ("select positions [0,2,3]") and force it to learn semantic rules ("select purple circles"), the world objects are shuffled before being fed to the listener. 
 
-### Conclusions
+### 2.2 Cross-Rule Validation: The Baseline Signal Problem
 
-What the cross-rule validation tells us about neuralese. The concept of the rules exists there, but if it were theoretically equal to the selective rules- the cosine similarities should be almost 1 at least, not 0.3. It encodes other info (perhaps about the specific world) that helps the system solve the task.
-The problem with batching the data… is that while shuffling removes the incentive for the speaker to learn how to tell the explicitly listener about the mask X ans where all the selected objects are position. It might learn other metadata about X (how many selected objects, for ex) so this is one short cut where the model could partially exploit ans create incentive to learn about things apart from the rule.
+After training, we needed to verify that the speaker actually learned to encode rules meaningfully. Did "red objects" produce similar neuralese across different worlds? Did "red" neuralese differ from "triangle" neuralese?
+Using the trained speaker, we generated 100 neuralese vectors for each of 9 different rules (like ‘red’, ‘green or triangle’, ‘not purple’, etc.). Then we measured how similar these vectors were to each other using cosine similarity.
+We expected that neuralese for the same rule should be similar (high within-rule similarity), while neuralese for different rules should be different (low cross-rule similarity), but the similarities for both categories were high (0.908 ± 0.090, and 0.865 ± 0.097 respectively). 
+We guessed that the neuralese contained a massive "baseline signal" that concealed the actual messages. So we normalized the neuralese by computing the average vector across all examples, then subtracting it from each vector. This brought the cosine similarity for same-rule neuralese down to 0.246 ± 0.519 (moderate similarity) and cross-rule similarity to -0.069 ± 0.500 (negative similarity).
+This revision showed that rule information did exist in the neuralese, just hidden beneath the baseline. And we inferred we should normalize the neuralese before attempting to translate them.
 
-What the adjusted metric probes tell us. An MLP is not a great translator. Learning how to structure the three-token naturall language rules consistently should have been solved… Just 60% is abysmal. I wonder weather this architecture is not the bottleneck here and I will switch it out on my next iteration of this notebook.
 
-It is interesting though that on the rules it can structure, it does much better. It backs up the cross-rule valid experiment that there is some concepts of riles learned
-"When debugging multi-agent systems or trying to interpret model behavior, we often assume that effective solutions will be human-interpretable. This assumption can be costly. This post demonstrates why probing for human-like representations might fail even when the system works perfectly, and what that means for interpretability research."
+## 3. Translation
+### 3.1. Training the translator
 
-### Interaction
-Link to Github
-Interactive version up in a few days
 
