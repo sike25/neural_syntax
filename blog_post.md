@@ -1,8 +1,18 @@
-# "Neural Babel: What Do Neural Networks Talk About?"
+### Neural Babel: What Do Neural Networks Talk About?
+#### Sike Ogieva, Amherst College
+---
 
-Imagine overhearing a conversation in a language you don’t speak. The speakers understand each other perfectly, but you have no idea what they're saying. In this project, the speakers were neural networks, and the language emerged spontaneously when they were trained to collaboratively solve a task. We tried to build a translator for this “neuralese” and this is what we found.
+### 1. Introduction
 
-## Teaching Machines to Point at Things
+Imagine overhearing a conversation in a language you don’t speak. The speakers understand each other perfectly, but you have no idea what they're saying. In this project, the speakers were neural networks, and the language emerged spontaneously when they were trained to collaboratively solve a task. This project is an attempt to build a translator for this "neuralese".
+
+<figure>
+  <img src="./assets/img/2025-10-25-neural-babel/confused-math-lady.jpg" alt="Confused Math Lady Meme" style="width:100%">
+  <figcaption>Me trying to understand neuralese</figcaption>
+</figure>
+
+
+### 2. Teaching Machines to Point at Things
 Take a world of objects W and a subset of this world X.
 
 ... Insert drawing
