@@ -110,7 +110,7 @@ Notice how different rules can produce the same target subset. So we decided to 
 Consider another example:
 
 <figure>
-  <img src="images/desription-accuracy-example.jpg" alt="This predicted rule perfectly describes the target subset" style="width:100%">
+  <img src="images/description-accuracy-example.jpg" alt="This predicted rule perfectly describes the target subset" style="width:100%">
   <figcaption>Fig. 6. Predicted rules can perfectly describe the target subset but include other elements. We can consider this phenomenon ad a sign of partial learning.</figcaption>
 </figure>
 <br></br>
