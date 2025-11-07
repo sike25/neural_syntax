@@ -1,0 +1,36 @@
+{
+  "num_entries": 1705833,
+  "world_size": 5,
+  "num_colors": 3,
+  "num_shapes": 3,
+  "num_outlines": 3,
+  "total_unique_objects": 27,
+  "encoding_info": {
+    "operation_indices": {
+      "SINGLE": 0,
+      "NOT": 1,
+      "AND": 2,
+      "OR": 3
+    },
+    "attribute_indices": {
+      "COLOR": 0,
+      "SHAPE": 1,
+      "OUTLINE": 2
+    },
+    "color_indices": {
+      "RED": 0,
+      "GREEN": 1,
+      "PURPLE": 2
+    },
+    "shape_indices": {
+      "CIRCLE": 0,
+      "SQUARE": 1,
+      "TRIANGLE": 2
+    },
+    "outline_indices": {
+      "NONE": 0,
+      "SLIM": 1,
+      "THICK": 2
+    }
+  }
+}
