@@ -127,7 +127,7 @@ This meant that some portion of the incorrectly predicted rules were not rules a
 
 |                                | All Predictions | Semantically Valid Only |
 | ------------------------------ | :-----------:   | :---------------------: |
-| Raw Sequence Accuracy          |      38.17%     |            -            |
+| Raw Sequence Accuracy          |      38.17%     |          62.43%         |
 | Adjusted Sequence Accuracy     |      43.24%     |          70.81%         |
 | Descriptive Sequence Accuracy  |      51.44%     |          84.23%         |
 
