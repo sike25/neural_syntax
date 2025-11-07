@@ -149,7 +149,7 @@ So the speaker might learn some rule concepts while also exploiting easier stati
 
 #### 5.2. What the Adjusted Metrics Tell Us
 
-The translator should not struggle as much as it did with producing well-formed 3-token sequences from a limited and consistent grammar. This struggle combined with the fact that the performance on valid rules was strong implies that the translation task is feasible and the translator struggled to construct rules by independently classifying the tokens. The MLP architecture of the translator was likely the bottleneck.
+The translator should not have struggled as much as it did to produce well-formed 3-token sequences from such a limited and consistent grammar. However, the strong performance on semantically valid rules suggests that the translation task itself is feasible. The bottleneck appears to be the token-by-token classification approach: the MLP architecture struggled to construct coherent rules when predicting each token independently, even though it could successfully translate neuralese when it did produce valid sequences.
 
 <br></br>
 <br></br>
