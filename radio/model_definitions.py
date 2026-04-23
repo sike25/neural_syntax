@@ -96,7 +96,7 @@ class SpeakerListenerSystem(nn.Module):
         self.listener = Listener(input_dimension=listener_input_size, output_dimension=1)
 
 
-    def forward(self, W, X_mask, return_neuralese_only=False):
+    def forward(self, W, X_mask):
         """
         W:      A batch of worlds.
                 Each world is a set of (3x3) objects.
@@ -131,9 +131,6 @@ class SpeakerListenerSystem(nn.Module):
         # representation has shape (B, neuralese_dimension)
         representation = self.speaker(speaker_input)
 
-        if return_neuralese_only:
-            return representation
-
         ### STEP 4: Prepare the listener's input
         # The listener needs to pair the speaker's representation with each object feature
         # Expand the representation to match the number of objects
@@ -143,26 +140,16 @@ class SpeakerListenerSystem(nn.Module):
         listener_input = torch.cat([r_expanded, object_features], dim=2)
 
 
-        ### STEP 5: Shuffle inputs to the listener
-        # This is to avoid the speaker simply learning to tell the listener about X_mask
-        # without learning anything about the objects in X themselves.
-        # Create a random permutation for each item in the batch
-        shuffled_indices = [torch.randperm(self.world_size) for _ in range(batch_size)]
-        # Apply the shuffle
-        shuffled_input   = torch.stack([features[p] for features, p in zip(listener_input, shuffled_indices)])
-        shuffled_labels  = torch.stack([labels[p]   for labels,   p in zip(X_mask, shuffled_indices)])
-
-
         ### STEP 6: Listener makes an inclusion prediction for each object
         # Reshape for batch processing by the listener
         # (B, 5, rep_dim + feature_dim) -> (B*5, rep_dim + feature_dim)
-        listener_input_flat = shuffled_input.view(-1, self.neuralese_dimension + self.feature_dimension)
+        listener_input_flat = listener_input.view(-1, self.neuralese_dimension + self.feature_dimension)
         # Get predictions (logits) -> (B*5, 1)
         predictions_flat = self.listener(listener_input_flat)
         # Reshape back to (B, world_size)
         predictions = predictions_flat.view(batch_size, self.world_size)
 
-        return predictions, shuffled_labels
+        return predictions, X_mask, representation
     
 
 
