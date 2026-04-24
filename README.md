@@ -13,6 +13,7 @@ This work was built of Andreas and Klein's 2017 paper Analogs of Linguistic Stru
 You can find an explainer of it at: 
 [interpretability/andreas.md](https://github.com/sike25/interpretability/blob/main/07_Complex_Explanations/andreas.md)
 
+Interact with the project at: https://neural-babel-radio.streamlit.app/ 
 
 
 
