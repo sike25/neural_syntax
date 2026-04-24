@@ -3,6 +3,7 @@ import torch
 import numpy as np
 import random
 
+from huggingface_hub import hf_hub_download
 from model_definitions import SpeakerListenerSystem, Translator
 
 
@@ -99,7 +100,10 @@ def object_matches_rule(rule, obj):
 
 @st.cache_resource
 def load_models():
-    sl_ckpt = torch.load('../training/models/speaker_listener.pt', map_location='cpu')
+
+    sl_path = hf_hub_download(repo_id="sike25/neural-babel", filename="speaker_listener.pt")
+    sl_ckpt = torch.load(sl_path)
+
     hp      = sl_ckpt['hyperparameters']
     speaker_listener = SpeakerListenerSystem(
         world_size          = hp['world_size'],
@@ -111,7 +115,9 @@ def load_models():
     for p in speaker_listener.parameters():
         p.requires_grad = False
 
-    tr_ckpt = torch.load('../training/models/lstm_translator.pt', map_location='cpu')
+    tr_path = hf_hub_download(repo_id="sike25/neural-babel", filename="lstm_translator.pt")
+    tr_ckpt = torch.load(tr_path)
+
     hp2     = tr_ckpt['hyperparameters']
     translator = Translator(
         neuralese_dimension = hp2['neuralese_dimension'],
