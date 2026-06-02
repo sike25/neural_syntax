@@ -1,9 +1,9 @@
 ### Neural Babel: What Do Neural Networks Talk About?
 #### Sike Ogieva, Amherst College
-
-October 2025.  
-Updated: May 2026.
 ---
+
+October 2025.   
+Updated: May 2026.
 
 ### 1. Introduction
 
