@@ -69,7 +69,7 @@ The speaker-listener system achieved **99.56%** test accuracy on an unseen test 
 
 To prevent the speaker from encoding positional shortcuts ("select positions [0,2,3]") and force it to learn semantic rules ("select purple circles"), the world objects are shuffled before being fed to the listener.
 
-#### 3.2 Cross-Rule Validation: The Baseline Signal Problem
+### 4. Cross-Rule Validation: The Baseline Signal Problem
 
 After training, we needed to verify that the speaker actually learned to encode rules meaningfully. Did "red objects" produce similar neuralese across different worlds? Did `red` neuralese differ significantly from `triangle` neuralese?
 
@@ -77,32 +77,36 @@ Using the trained speaker, we generated 100 neuralese vectors each for 9 differe
 
 We guessed that the neuralese might contain a massive "baseline signal" that concealed the actual messages. So we normalized the neuralese by computing the average vector across all examples, then subtracting it from each vector. This brought the cosine similarity for same-rule neuralese down to $$0.246 \pm 0.519$$ (moderate similarity) and cross-rule similarity to $$-0.069 \pm 0.500$$ (negative similarity).
 
+Table: Cosine Similarity Before and After Mean Normalization.     
+
+|                |     Within-Rule        |     Cross Rule         |  
+| -------------- | :--------------------: | :--------------------: |   
+|   RAW          |   $$0.908 \pm 0.090$$  |  $$0.865 \pm 0.097$$   |   
+|   NORMALIZED   |   $$0.246 \pm 0.519$$  |  $$-0.069 \pm 0.500$$  |   
+
+
 This revision showed that rule information did exist in the neuralese, just hidden beneath the baseline. And we inferred we should normalize the neuralese before attempting to translate them.
 
 <br></br>
 <br></br>
 
-### 4. Translation
+### 5. Translation
 
-#### 4.1. Training the Tanslator
+#### 5.1. Training the Tanslator
 
 Having established that the speaker-listener system can communicate, the central question comes up. Can this emergent neuralese be translated into natural language?
 If the neuralese vectors have encoded semantic information about the rules then an appropriate neural network ought to be able to reverse-engineer these rules from the vector alone. 
 
 We trained two translator networks on 1,364,666 training examples (40% of the dataset). 
 
-**1. Multilayer Perceptron**   
-This took a normalized 12-dimensional neuralese vector as inputs and outputed a 3-token sequence which it classified over our 13-word vocabulary (9 features + `and`, `not`, `or` + `<blank>`).
+#### 5.2 Multilayer Perceptron 
+
+This network took a normalized 12-dimensional neuralese vector as inputs and outputed a 3-token sequence which it classified over our 13-word vocabulary (9 features + `and`, `not`, `or` + `<blank>`).
 Evaluation on an unseen test set yielded modest results. The network correctly predicted individual tokens **63.76%** of the time, and got the entire 3-token rule right only around **38.17%** of the time.
 
-**2. Long Short-Term Memory Network**     
-The neuralese vector goes throw two linear layers before the LSTM layers. Generation begins from a dedicated <START> token. At each of the three steps the previous (32-dimensional) token is embedded and the resulting hidden state is projected to logits over the 13-word vocabulary.        
-During training the previous ground-truth token is fed in (teacher forcing); at inference the previous predicted token is fed back in (greedy decoding).     
-This network gets the entire 3-token ruke right around **54.78%** of the time.
+#### 5.3. Adjusted Evaluation Metrics and Malformed Rules
 
-#### 4.2. Adjusted Evaluation Metrics
-
-Next, we considered the possibility that raw accuracy metrics could be painting an incomplete picture. Look at this example: 
+Because of the poor performance of MLP translator, we considered the possibility that raw accuracy metrics could be painting an incomplete picture. Look at this example: 
 
 <figure>
   <img src="images/adjusted-accuracy-example.jpg" alt="Green and  Slim-Outline are both accurate rules that describe this subset." style="width:100%">
@@ -110,7 +114,7 @@ Next, we considered the possibility that raw accuracy metrics could be painting 
 </figure>
 <br></br>
 
-Notice how different rules can produce the same target subset. We then decided to compute a metric where a predicted rule is accurate if it produces the same subset of the world as the ground truth rule even if it is different from the ground truth rule. We called this the **adjusted accuracy** and calculated it at **43.24%** and **66.29%** for the MLP and LSTM respectively.
+Notice how different rules can produce the same target subset. We then decided to compute a metric where a predicted rule is accurate if it produces the same subset of the world as the ground truth rule even if it is different from the ground truth rule. We called this the **adjusted accuracy** and calculated it at **43.24%** for the MLP.
 
 Consider another example:
 
@@ -120,11 +124,9 @@ Consider another example:
 </figure>
 <br></br>
 
-Notice that the predicted rule correctly describes all the objects in the target subset even though it incorrectly includes the purple triangle. Another adjusted metric tracked whether the rule correctly describes all the selected objects. We called this the **description accuracy** and calculated it at **51.44%** and **76.49%** for the MLP and LSTM respectively.
+Notice that the predicted rule correctly describes all the objects in the target subset even though it incorrectly includes the purple triangle. Another adjusted metric tracked whether the rule correctly describes all the selected objects. We called this the **description accuracy** and calculated it at **51.44%** for the MLP.
 
-#### 4.3. The MLP and Malformed Rules
-
-For the MLP, we found that only **61% of predicted rules were even semantically valid**. For the LSTM network, semantic validity was nearly perfect (**99.99%**).
+Next, we found that only **61% of predicted rules were even semantically valid**. 
 
 Here are some real examples of malformed MLP outputs from our test set:
 
@@ -147,9 +149,15 @@ This meant that some portion of the incorrectly predicted rules were not rules a
 <br></br>
 
 
-#### 4.4 Results LSTM Translator
+#### 5.4. Long Short-Term Memory Network**     
 
-Both models evaluated on the same 170,584-example held-out test set.
+The stronger performance of the MLP on semantically valid rules suggests that the translation task itself is feasible. The bottleneck appears to be the token-by-token classification approach of the MLP architecture. The original translator struggles to construct coherent rules when predicting each token independently, even though it could successfully translate neuralese when it did produce valid sequences.
+
+So we replace the MLP with an LSTM network. During training the previous ground-truth token is fed in (teacher forcing); at inference the previous predicted token is fed back in (greedy decoding).  
+
+The neuralese vector goes through two linear layers before the LSTM layers. Generation begins from a dedicated <START> token. At each of the three steps the previous (32-dimensional) token is embedded and the resulting hidden state is projected to logits over the 13-word vocabulary.        
+
+Both models were evaluated on the same 170,584-example held-out test set.
 
 | Metric                | MLP (token-by-token) | LSTM (autoregressive) |
 | --------------------- | -------------------- | --------------------- |
@@ -159,11 +167,7 @@ Both models evaluated on the same 170,584-example held-out test set.
 | Description accuracy  | 51.44%               | 76.49%                |
 | Semantic validity     | 61%                  | 99.99% (3 malformed)  |
 
-The MLP's adjusted and description accuracy rise to 70.81% and 84.23% respectively
-*when conditioned on the 61% of predictions that were semantically valid* — but the
-LSTM reaches comparable quality across **all** its predictions, because almost none
-are malformed. The autoregressive decoder resolves the well-formedness bottleneck
-identified in the original MLP experiment.
+The MLP's adjusted and description accuracy rise to 70.81% and 84.23% respectively *when conditioned on the 61% of predictions that were semantically valid*. But the LSTM reaches comparable quality across **all** its predictions, because almost none are malformed. The autoregressive decoder resolves the well-formedness bottleneck identified in the original MLP experiment.
 
 ### 5. Conclusions
 
@@ -177,9 +181,11 @@ So the speaker might learn some rule concepts while also exploiting easier stati
 
 > The concept of rules exists in neuralese, but neuralese is not equal to the rules themselves.
 
-#### 5.2. What the Adjusted Metrics Tell Us
+#### 5.2. Speaking English
 
-The translator should not have struggled as much as it did to produce well-formed 3-token sequences from such a limited and consistent grammar. However, the strong performance on semantically valid rules suggests that the translation task itself is feasible. The bottleneck appears to be the token-by-token classification approach: the MLP architecture struggled to construct coherent rules when predicting each token independently, even though it could successfully translate neuralese when it did produce valid sequences.
+When shown a neuralese vector, our best translator could generate an English phrase that correctly describes the selected objects in roughly **3 out of 4 worlds**. Can we do even better?
+
+The within-rule similarity of $$0.246 \pm 0.519$$ might suggest a fundamental ceiling. Or perfect translation may still be feasible, given another technique.
 
 <br></br>
 <br></br>
@@ -192,11 +198,5 @@ The translator should not have struggled as much as it did to produce well-forme
 5. **Translating Neuralese**, Jacob Andreas and Anca Dragan and Dan Klein, Proceedings of the 55th Annual Meeting of the Association for Computational Linguistics (Volume 1: Long Papers), https://arxiv.org/pdf/1704.06960.
 
 
-
-### Update. 
-
-We replaced the MLP with an LSTM for translation.
-
-Metric (all predictions)MLP (published)LSTM (unpublished)Semantic validity61%~100% (3 malformed / 170,584)Raw sequence accuracy38.17%54.78%Adjusted accuracy43.24%66.29%Description accuracy51.44%76.49%Token accuracy63.76%64.12%
 
 
